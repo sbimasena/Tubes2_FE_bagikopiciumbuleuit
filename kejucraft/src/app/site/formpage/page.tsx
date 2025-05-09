@@ -1,20 +1,22 @@
 'use client'
 import Image from "next/image";
 import React from "react";
-import CustomButton from "@/src/components/CustomButton";
-import Form from "@/src/components/Form"
+import Form from "@/src/app/components/Form";
+import { useSearchParams } from "next/navigation";
 
-const Main = () => {
+const FormPage = () => {
+    const searchParams = useSearchParams();
+    const searchType = searchParams.get('type') as 'bfs' | 'dfs' | 'bi' || 'bfs'; 
     return (
         <div
         className="relative min-h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/images/main-bg.svg')" }}>
             <div className = "flex items-center justify-center pt-16">
-                <Form/>
+                <Form initialSearchType={searchType}/>
             </div>
             
         </div>
     )
 }
 
-export default Main;
+export default FormPage;
