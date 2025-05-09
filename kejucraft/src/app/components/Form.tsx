@@ -2,11 +2,12 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import SwitchButton, { useMode, ModeContext, SwitchButtonProvider } from "./SwitchButton";
+import ResultBox from "./ResultBox";
 
 // Separate component for Max Resep input that uses the mode context
-function MaxResepInput() {
+
+function MaxResepInput({ maxResep, setMaxResep }: { maxResep: string, setMaxResep: (val: string) => void }) {
   const { isMultithreading } = useMode();
-  const [maxResep, setMaxResep] = useState("");
 
   return (
     <div className="flex items-center space-x-2">
@@ -21,7 +22,6 @@ function MaxResepInput() {
           !isMultithreading ? "opacity-50 cursor-not-allowed" : ""
         }`}
         disabled={!isMultithreading}
-        placeholder={!isMultithreading ? "" : ""}
         title={
           !isMultithreading
             ? "Switch to furnace (multi-threaded) mode to enable"
@@ -36,13 +36,55 @@ interface FormProps {
   initialSearchType?: 'bfs' | 'dfs' | 'bi';
 }
 
-export default function Form({ initialSearchType = 'bfs' }: FormProps) {
-  // State for tracking which search algorithm is active
-  const [activeSearch, setActiveSearch] = useState<'bfs' | 'dfs' | 'bi'>(initialSearchType);
+interface Step {
+  ingredients: [string, string];
+  result: string;
+}
 
-  // Handler for switching between search algorithms
+interface DfsResponse {
+  duration: string;
+  nodes_visited: number;
+  paths: {
+    steps: Step[];
+    final_item: string;
+  }[];
+}
+
+export default function Form({ initialSearchType = 'bfs' }: FormProps) {
+  const [activeSearch, setActiveSearch] = useState<'bfs' | 'dfs' | 'bi'>(initialSearchType);
+  const [element, setElement] = useState("");
+  const [maxResep, setMaxResep] = useState("");
+  const [result, setResult] = useState<DfsResponse | null>(null);
+  const { isMultithreading } = useMode();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+
   const handleSearchChange = (searchType: 'bfs' | 'dfs' | 'bi') => {
     setActiveSearch(searchType);
+  };
+
+  const handleSearch = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const query = new URLSearchParams({
+        target: element,
+        algorithm: activeSearch,
+        maxPaths: isMultithreading ? (maxResep || "3") : "1",
+      });
+  
+      const response = await fetch(`http://localhost:8080/api/search?${query.toString()}`);
+      if (!response.ok) throw new Error(await response.text());
+      const data: DfsResponse = await response.json();
+      setResult(data);
+      setCurrentPage(0); // reset pagination saat pencarian baru
+    } catch (err: any) {
+      setError(err.message);
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,43 +126,29 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
           <label className="text-black text-[28px]">Elemen :</label>
           <input
             type="text"
+            value={element}
+            onChange={(e) => setElement(e.target.value)}
             className="bg-[#6B6B6B] text-white px-2 w-[400px] h-[48px] rounded text-[20px]"
           />
         </div>
 
         {/* Max Resep Input - using useMode hook */}
-        <MaxResepInput />
+        <MaxResepInput maxResep={maxResep} setMaxResep={setMaxResep} />
 
-        <button className="rounded hover:brightness-110 p-1">
+        <button className="rounded hover:brightness-110 p-1"  onClick={handleSearch}>
           <Image src="/images/search.png" width={48} height={48} alt="Search" />
         </button>
       </div>
 
-      {/* Display Area based on active search algorithm */}
-      <div className="bg-[#6D6D6D] w-[1350px] h-[650px] rounded-md flex flex-col justify-between px-4 py-3">
-        {/* Main Display Content */}
-        <div className="flex-1">
-          {/* Display will change based on activeSearch */}
-          {/* For now it's empty, but you could conditionally render different components here */}
-        </div>
+      {loading && <p className="text-gray-700 text-xl">🔄 Mencari jalur terbaik...</p>}
+      {error && <p className="text-red-500 text-xl">Error: {error}</p>}
 
-        {/* Pagination */}
-        <div className="flex justify-center items-center space-x-12 text-white text-[28px]" style={{ fontFamily: 'Minecraft' }}>
-          <button>{'<'}</button>
-          <div className="text-xl">1</div>
-          <div className="text-xl">2</div>
-          <div className="text-xl">3</div>
-          <button>{'>'}</button>
-        </div>
+      {result && (
+      <div className="w-full bg-[#DADADA] rounded-xl p-4 shadow-md">
+        <ResultBox result={result} />
       </div>
-
-      {/* Footer with search stats */}
-      <div className="flex justify-between text-gray-700 text-[20px]" style={{ fontFamily: 'Minecraft' }}>
-        <div>Waktu Eksekusi: 80ms</div>
-        <div>Node Dikunjungi: 42</div>
-        <div>Jumlah Resep: 3</div>
-      </div>
-          </div>
+    )}
+    </div>
     </SwitchButtonProvider>
   );
 }
