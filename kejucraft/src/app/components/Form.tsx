@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import SwitchButton, { useMode, ModeContext, SwitchButtonProvider } from "./SwitchButton";
 import ResultBox from "./ResultBox";
+import BidiSwitchButton from "./BidiSwitchButton";
+import ScrapeButton from "./ScrapeButton";
+
 
 // Separate component for Max Resep input that uses the mode context
 
@@ -41,13 +44,13 @@ interface Step {
   result: string;
 }
 
+
 interface DfsResponse {
   duration: string;
   nodes_visited: number;
-  paths: {
-    steps: Step[];
-    final_item: string;
-  }[];
+  paths: string[][]; // ← sesuai backend
+  steps: Record<string, [string, string]>[]; // ← map result -> ingredients
+  algorithm: string;
 }
 
 export default function Form({ initialSearchType = 'bfs' }: FormProps) {
@@ -59,6 +62,8 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const [bidiMode, setBidiMode] = useState<"bfs" | "dfs">("dfs");
+
 
   const handleSearchChange = (searchType: 'bfs' | 'dfs' | 'bi') => {
     setActiveSearch(searchType);
@@ -70,15 +75,19 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
     try {
       const query = new URLSearchParams({
         target: element,
-        algorithm: activeSearch,
+        algorithm: activeSearch === "bi" ? "bidirectional" : activeSearch,
         maxPaths: isMultithreading ? (maxResep || "3") : "1",
       });
+  
+      if (activeSearch === "bi") {
+        query.set("bidi", bidiMode);
+      }
   
       const response = await fetch(`http://localhost:8080/api/search?${query.toString()}`);
       if (!response.ok) throw new Error(await response.text());
       const data: DfsResponse = await response.json();
       setResult(data);
-      setCurrentPage(0); // reset pagination saat pencarian baru
+      setCurrentPage(0);
     } catch (err: any) {
       setError(err.message);
       setResult(null);
@@ -119,7 +128,9 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
 
       {/* Input Bar */}
       <div className="flex items-center justify-between w-full space-x-4" style={{ fontFamily: 'Minecraft' }}>
+        <ScrapeButton />
         <SwitchButton />
+        <BidiSwitchButton activeSearch={activeSearch} bidiMode={bidiMode} setBidiMode={setBidiMode} />
 
         {/* Elemen Input */}
         <div className="flex items-center space-x-2">

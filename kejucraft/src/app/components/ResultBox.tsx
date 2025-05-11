@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import TreeVisualizer from "./TreeVisualizer";
 
 interface Step {
   ingredients: [string, string];
@@ -13,7 +14,9 @@ interface Path {
 interface DfsResponse {
   duration: string;
   nodes_visited: number;
-  paths: Path[];
+  paths: string[][]; // ← sesuai backend
+  steps: Record<string, [string, string]>[]; // ← map result -> ingredients
+  algorithm: string;
 }
 
 interface ResultBoxProps {
@@ -23,67 +26,70 @@ interface ResultBoxProps {
 export default function ResultBox({ result }: ResultBoxProps) {
   const [currentPage, setCurrentPage] = useState(0);
 
-  if (!result) {
+  useEffect(() => {
+    if (result && currentPage >= result.paths.length) {
+      setCurrentPage(0);
+    }
+  }, [result]);
+
+  if (!result || !result.paths?.length || !result.steps?.length) {
     return (
       <div className="text-white text-[20px] mt-4" style={{ fontFamily: 'Minecraft' }}>
-        Belum ada hasil pencarian
+        Tidak ada resep yang ditemukan.
       </div>
     );
   }
 
   const currentPath = result.paths[currentPage];
+  const currentStepMap = result.steps[currentPage];
 
-  // Recursive visual tree rendering
-  const renderVisualTree = (steps: Step[], target: string): JSX.Element => {
-    const stepMap = new Map<string, Step>();
-    steps.forEach(step => stepMap.set(step.result, step));
+  const finalItem = currentPath[currentPath.length - 1];
 
-    const buildTree = (node: string): JSX.Element => {
-      const step = stepMap.get(node);
-      if (!step) {
-        return <li>{node}</li>;
-      }
-    
-      return (
-        <li>
-          <span className="font-bold">{step.result}</span>
-          <ul className="ml-6 list-disc">
-            {buildTree(step.ingredients[0])}
-            {buildTree(step.ingredients[1])}
-          </ul>
-        </li>
-      );
+  const visualSteps = useMemo(() => {
+    const steps: Step[] = [];
+    const visited = new Set<string>();
+  
+    const dfs = (resultName: string) => {
+      if (visited.has(resultName)) return;
+      const ingredients = currentStepMap[resultName];
+      if (!ingredients) return;
+  
+      dfs(ingredients[0]);
+      dfs(ingredients[1]);
+  
+      steps.push({ ingredients, result: resultName });
+      visited.add(resultName);
     };
+  
+    dfs(finalItem);
+    return steps;
+  }, [currentPath, currentStepMap, finalItem]);
 
-    return (
-      <div className="mt-4 max-h-[400px] overflow-y-auto pr-2 bg-[#3E3E3E]">
-        <p className="text-white font-bold text-xl mb-2">🧬 Pohon Resep (Tree):</p>
-        <ul className="text-white ml-4 list-disc">{buildTree(target)}</ul>
-      </div>
-    );
-  };
 
   return (
     <div className="text-white text-[20px] mt-4 space-y-4" style={{ fontFamily: 'Minecraft' }}>
-      {/* Stats */}
       <div>
         <p>⏱ Waktu: {result.duration}</p>
         <p>📦 Node Dikunjungi: {result.nodes_visited}</p>
         <p>🧪 Jumlah Resep: {result.paths.length}</p>
       </div>
 
-      {/* Main Box with scroll if needed */}
       <div className="bg-[#5A5A5A] rounded p-4 max-h-[500px] overflow-y-auto">
         <p className="text-lg font-bold mb-2">🔢 Resep #{currentPage + 1}</p>
-        {currentPath.steps.map((step, i) => (
+        {visualSteps.map((step, i) => (
           <p key={i}>
             {step.ingredients[0]} + {step.ingredients[1]} → {step.result}
           </p>
         ))}
-        {renderVisualTree(currentPath.steps, currentPath.final_item)}
+
+        <div className="mt-4 max-h-[400px] overflow-y-auto pr-2 bg-[#3E3E3E]">
+          <p className="text-white font-bold text-xl mb-2">🧬 Pohon Resep (Tree):</p>
+          <div className="flex justify-center">
+            <TreeVisualizer finalItem={finalItem} steps={currentStepMap} />
+          </div>
+        </div>
       </div>
 
-      {/* Pagination */}
       {result.paths.length > 1 && (
         <div className="flex justify-center items-center space-x-6 text-[24px] mt-2">
           <button
@@ -116,3 +122,4 @@ export default function ResultBox({ result }: ResultBoxProps) {
     </div>
   );
 }
+
