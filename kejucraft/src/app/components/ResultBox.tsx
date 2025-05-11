@@ -71,22 +71,22 @@ export default function ResultBox({ result }: ResultBoxProps) {
   // Baru sekarang tampilkan fallback jika data tidak valid
   if (!result || !result.paths || !result.steps || !result.paths[currentPage]) {
     return (
-      <div className="text-white text-[20px] mt-4" style={{ fontFamily: "Minecraft" }}>
-        Tidak ada resep yang ditemukan.
+      <div className="text-gray-700 text-[20px] mt-4" style={{ fontFamily: "Minecraft" }}>
+        Tidak ada Resep untuk Elemen ini.
       </div>
     );
   }
 
 
   return (
-    <div className="text-white text-[20px] mt-4 space-y-4" style={{ fontFamily: 'Minecraft' }}>
+    <div className="text-gray-700 text-[20px] mt-4 space-y-4" style={{ fontFamily: 'Minecraft' }}>
       <div>
         <p>⏱ Waktu: {result.duration}</p>
         <p>📦 Node Dikunjungi: {result.nodes_visited}</p>
         <p>🧪 Jumlah Resep: {result.paths.length}</p>
       </div>
 
-      <div className="bg-[#5A5A5A] rounded p-4 max-h-[500px] overflow-y-auto">
+      <div className="bg-[#5A5A5A] text-white rounded p-4 max-h-[500px] overflow-y-auto">
         <p className="text-lg font-bold mb-2">🔢 Resep #{currentPage + 1}</p>
         {visualSteps.map((step, i) => (
           <p key={i}>

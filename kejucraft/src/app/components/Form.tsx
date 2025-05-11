@@ -86,8 +86,16 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
       }
   
       const response = await fetch(`http://localhost:8080/api/search?${query.toString()}`);
-      if (!response.ok) throw new Error(await response.text());
-      const data: DfsResponse = await response.json();
+      const responseText = await response.text(); 
+  
+      if (!response.ok) {
+        if (response.status === 404 && responseText.includes("No path found")) {
+          throw new Error("Tidak ada Resep untuk Elemen ini");
+        }
+        throw new Error(responseText);
+      }
+  
+      const data: DfsResponse = JSON.parse(responseText);
       setResult(data);
       setCurrentPage(0);
     } catch (err: any) {
@@ -97,7 +105,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
       setLoading(false);
     }
   };
-
+  
   return (
       <div className="w-[1400px] h-[850px] bg-[#EDEDED] rounded-2xl p-6 shadow-md mx-auto space-y-4">
       {/* Header */}
@@ -152,11 +160,15 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
         </button>
       </div>
 
-      {loading && <p className="text-gray-700 text-xl">🔄 Mencari jalur terbaik...</p>}
-      {error && <p className="text-red-500 text-xl">Error: {error}</p>}
+      {loading && <p className="text-gray-700 text-xl bg-[#DADADA] rounded p-4 max-h-[500px] overflow-y-auto" style={{ fontFamily: "Minecraft" }}>Mencari jalur terbaik...</p>}
+      {error && (
+        <div className="text-gray-700 text-[20px] mt-4 bg-[#DADADA] rounded p-4 max-h-[500px] overflow-y-auto" style={{ fontFamily: "Minecraft" }}>
+          {error}
+        </div>
+      )}
 
       {result && (
-      <div className="w-full bg-[#DADADA] rounded-xl p-4 shadow-md">
+      <div className="text-gray-700 text-[20px] mt-4 bg-[#DADADA] rounded p-4 max-h-[500px]">
         <ResultBox result={result} />
       </div>
     )}

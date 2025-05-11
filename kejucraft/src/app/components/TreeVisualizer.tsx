@@ -37,7 +37,6 @@ interface TreeNodeProps {
 export default function TreeVisualizer({ steps, finalItem }: TreeNodeProps) {
   const treeData = useMemo(() => [buildTreeData(finalItem, steps, new Set())], [steps, finalItem]);
 
-
   return (
     <div style={{ width: "100%", height: "600px" }}>
       <TreeWrapper
