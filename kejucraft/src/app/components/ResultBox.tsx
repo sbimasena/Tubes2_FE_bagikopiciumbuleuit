@@ -32,9 +32,12 @@ export default function ResultBox({ result }: ResultBoxProps) {
     }
   }, [result, currentPage]);
 
-  // Gunakan default kosong, tapi tetap panggil hooks
-  const currentPath = result?.paths?.[currentPage] ?? [];
-  const currentStepMap = result?.steps?.[currentPage] ?? {};
+  const safePaths = (result?.paths ?? []).filter((p): p is string[] => Array.isArray(p));
+  const safeSteps = (result?.steps ?? []).filter((s): s is Record<string, [string, string]> => !!s);
+
+  const currentPath = safePaths[currentPage] ?? [];
+  const currentStepMap = safeSteps[currentPage] ?? {};
+
   const finalItem = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
 
   const visualSteps = useMemo(() => {
@@ -69,7 +72,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
   }, [currentPath, currentStepMap, finalItem]);
 
   // Baru sekarang tampilkan fallback jika data tidak valid
-  if (!result || !result.paths || !result.steps || !result.paths[currentPage]) {
+  if (!result || (safePaths.length === 0 && result.paths[0] !== null)) {
     return (
       <div className="text-gray-700 text-[20px] mt-4" style={{ fontFamily: "Minecraft" }}>
         Tidak ada Resep untuk Elemen ini.
@@ -102,7 +105,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
         </div>
       </div>
 
-      {result.paths.length > 1 && (
+      {safePaths.length > 1 && (
         <div className="flex justify-center items-center space-x-6 text-[24px] mt-2">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
@@ -112,7 +115,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
             {"<"}
           </button>
 
-          {result.paths.map((_, index) => (
+          {safePaths.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentPage(index)}
