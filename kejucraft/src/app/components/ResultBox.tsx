@@ -30,40 +30,52 @@ export default function ResultBox({ result }: ResultBoxProps) {
     if (result && currentPage >= result.paths.length) {
       setCurrentPage(0);
     }
-  }, [result]);
+  }, [result, currentPage]);
 
-  if (!result || !result.paths?.length || !result.steps?.length) {
+  // Gunakan default kosong, tapi tetap panggil hooks
+  const currentPath = result?.paths?.[currentPage] ?? [];
+  const currentStepMap = result?.steps?.[currentPage] ?? {};
+  const finalItem = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+
+  const visualSteps = useMemo(() => {
+    if (!currentPath.length || !finalItem) return [];
+
+    const steps: Step[] = [];
+    const visited = new Set<string>();
+
+    const dfs = (resultName: string) => {
+      if (visited.has(resultName)) return;
+      visited.add(resultName); 
+    
+      const ingredients = currentStepMap[resultName];
+      if (!ingredients) return;
+    
+      dfs(ingredients[0]);
+      dfs(ingredients[1]);
+    
+      steps.push({ ingredients, result: resultName });
+    };
+
+    if (currentStepMap[finalItem]) {
+      dfs(finalItem);
+    } else if (finalItem) {
+      steps.push({
+        ingredients: ["-", "-"],
+        result: finalItem,
+      });
+    }
+
+    return steps;
+  }, [currentPath, currentStepMap, finalItem]);
+
+  // Baru sekarang tampilkan fallback jika data tidak valid
+  if (!result || !result.paths || !result.steps || !result.paths[currentPage]) {
     return (
-      <div className="text-white text-[20px] mt-4" style={{ fontFamily: 'Minecraft' }}>
+      <div className="text-white text-[20px] mt-4" style={{ fontFamily: "Minecraft" }}>
         Tidak ada resep yang ditemukan.
       </div>
     );
   }
-
-  const currentPath = result.paths[currentPage];
-  const currentStepMap = result.steps[currentPage];
-
-  const finalItem = currentPath[currentPath.length - 1];
-
-  const visualSteps = useMemo(() => {
-    const steps: Step[] = [];
-    const visited = new Set<string>();
-  
-    const dfs = (resultName: string) => {
-      if (visited.has(resultName)) return;
-      const ingredients = currentStepMap[resultName];
-      if (!ingredients) return;
-  
-      dfs(ingredients[0]);
-      dfs(ingredients[1]);
-  
-      steps.push({ ingredients, result: resultName });
-      visited.add(resultName);
-    };
-  
-    dfs(finalItem);
-    return steps;
-  }, [currentPath, currentStepMap, finalItem]);
 
 
   return (

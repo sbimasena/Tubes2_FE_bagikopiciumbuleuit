@@ -9,15 +9,22 @@ type TreeNodeDatum = {
   children?: TreeNodeDatum[];
 };
 
-function buildTreeData(node: string, steps: Record<string, [string, string]>): TreeNodeDatum {
+function buildTreeData(
+  node: string,
+  steps: Record<string, [string, string]>,
+  visited: Set<string> = new Set()
+): TreeNodeDatum {
+  if (visited.has(node)) return { name: node };
+  visited.add(node);
+
   const ingredients = steps[node];
   if (!ingredients) return { name: node };
 
   return {
     name: node,
     children: [
-      buildTreeData(ingredients[0], steps),
-      buildTreeData(ingredients[1], steps),
+      buildTreeData(ingredients[0], steps, visited),
+      buildTreeData(ingredients[1], steps, visited),
     ],
   };
 }
@@ -28,7 +35,8 @@ interface TreeNodeProps {
 }
 
 export default function TreeVisualizer({ steps, finalItem }: TreeNodeProps) {
-  const treeData = useMemo(() => [buildTreeData(finalItem, steps)], [steps, finalItem]);
+  const treeData = useMemo(() => [buildTreeData(finalItem, steps, new Set())], [steps, finalItem]);
+
 
   return (
     <div style={{ width: "100%", height: "600px" }}>

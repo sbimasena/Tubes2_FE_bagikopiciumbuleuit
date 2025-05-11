@@ -76,7 +76,9 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
       const query = new URLSearchParams({
         target: element,
         algorithm: activeSearch === "bi" ? "bidirectional" : activeSearch,
-        maxPaths: isMultithreading ? (maxResep || "3") : "1",
+        maxPaths: isMultithreading
+          ? (parseInt(maxResep) > 0 ? maxResep : "3")
+          : "1",
       });
   
       if (activeSearch === "bi") {
@@ -97,7 +99,6 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   };
 
   return (
-    <SwitchButtonProvider>
       <div className="w-[1400px] h-[850px] bg-[#EDEDED] rounded-2xl p-6 shadow-md mx-auto space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center" style={{ fontFamily: 'Minecraft' }}>
@@ -160,6 +161,5 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
       </div>
     )}
     </div>
-    </SwitchButtonProvider>
   );
 }
