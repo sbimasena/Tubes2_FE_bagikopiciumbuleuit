@@ -25,11 +25,28 @@ interface ResultBoxProps {
 
 export default function ResultBox({ result }: ResultBoxProps) {
   const [currentPage, setCurrentPage] = useState(0);
+  const [elementImages, setElementImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (result && currentPage >= result.paths.length) {
       setCurrentPage(0);
     }
+
+    const fetchImages = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/elements");
+        const data = await res.json();
+        const map: Record<string, string> = {};
+        for (const item of data) {
+          map[item.element] = item.image_url;
+        }
+        setElementImages(map);
+      } catch (err) {
+        console.error("Failed to fetch element images", err);
+      }
+    };
+  
+    fetchImages();
   }, [result, currentPage]);
 
   const safePaths = (result?.paths ?? []).filter((p): p is string[] => Array.isArray(p));
@@ -100,7 +117,22 @@ export default function ResultBox({ result }: ResultBoxProps) {
         <div className="mt-4 max-h-[400px] overflow-y-auto pr-2 bg-[#3E3E3E]">
           <p className="text-white font-bold text-xl mb-2">🧬 Pohon Resep (Tree):</p>
           <div className="flex justify-center">
-            <TreeVisualizer finalItem={finalItem} steps={currentStepMap} />
+            {currentPath.length === 1 && !currentStepMap[finalItem] ? (
+              <div className="flex flex-col items-center">
+                <img
+                  src={elementImages[finalItem]}
+                  alt={finalItem}
+                  className="w-[80px] h-[80px] object-contain"
+                />
+                <p className="text-white mt-2">{finalItem}</p>
+              </div>
+            ) : (
+              <TreeVisualizer
+                finalItem={finalItem}
+                steps={currentStepMap}
+                elementImages={elementImages}
+              />
+            )}
           </div>
         </div>
       </div>
