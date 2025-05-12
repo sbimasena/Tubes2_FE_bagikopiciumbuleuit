@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { RawNodeDatum } from "react-d3-tree";
 
 const TreeWrapper = dynamic(() => import("./TreeWrapper"), { ssr: false });
@@ -52,21 +52,47 @@ interface TreeNodeProps {
   steps: Record<string, [string, string]>;
   finalItem: string;
   elementImages: Record<string, string>;
+  liveUpdate?: boolean;
 }
 
-export default function TreeVisualizer({ steps, finalItem, elementImages }: TreeNodeProps) {
+export default function TreeVisualizer({ steps, finalItem, elementImages, liveUpdate }: TreeNodeProps) {
+  const [partialSteps, setPartialSteps] = useState<Record<string, [string, string]>>({});
   const basicElements = new Set(["Fire", "Water", "Earth", "Air"]);
+
+  useEffect(() => {
+    if (!liveUpdate) {
+      setPartialSteps(steps);
+      return;
+    }
+  
+    setPartialSteps({});
+    const keys = Object.keys(steps);
+    let i = 0;
+  
+    const interval = setInterval(() => {
+      if (i >= keys.length) {
+        clearInterval(interval);
+        return;
+      }
+      const key = keys[i];
+      setPartialSteps(prev => ({ ...prev, [key]: steps[key] }));
+      i++;
+    }, 300);
+  
+    return () => clearInterval(interval);
+  }, [steps, liveUpdate]);
+
   const treeData = useMemo(() => {
-    if (!steps[finalItem] && basicElements.has(finalItem)) {
+    if (!partialSteps[finalItem] && basicElements.has(finalItem)) {
       return [{
         name: finalItem,
         imageUrl: elementImages[finalItem] || undefined,
         children: [], 
       }];
     }
-  
-    return [buildTreeData(finalItem, steps, elementImages, new Set())];
-  }, [steps, finalItem, elementImages]);
+
+    return [buildTreeData(finalItem, partialSteps, elementImages, new Set())];
+  }, [partialSteps, finalItem, elementImages]);
 
   return (
     <div style={{ width: "100%", height: "600px" }}>

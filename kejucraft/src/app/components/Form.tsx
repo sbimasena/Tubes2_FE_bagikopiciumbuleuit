@@ -72,6 +72,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   const handleSearch = async () => {
     setLoading(true);
     setError("");
+    setResult(null);
     try {
       const query = new URLSearchParams({
         target: element,
@@ -155,7 +156,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
         {/* Max Resep Input - using useMode hook */}
         <MaxResepInput maxResep={maxResep} setMaxResep={setMaxResep} />
 
-        <button className="rounded hover:brightness-110 p-1"  onClick={handleSearch}>
+        <button className="rounded hover:brightness-110 cursor-pointer p-1"  onClick={handleSearch}>
           <Image src="/images/search.png" width={48} height={48} alt="Search" />
         </button>
       </div>

@@ -26,6 +26,7 @@ interface ResultBoxProps {
 export default function ResultBox({ result }: ResultBoxProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [elementImages, setElementImages] = useState<Record<string, string>>({});
+  const [liveUpdate, setLiveUpdate] = useState(false);
 
   useEffect(() => {
     if (result && currentPage >= result.paths.length) {
@@ -89,7 +90,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
   }, [currentPath, currentStepMap, finalItem]);
 
   // Baru sekarang tampilkan fallback jika data tidak valid
-  if (!result || (safePaths.length === 0 && result.paths[0] !== null)) {
+  if (!result || result.paths.length === 0) {
     return (
       <div className="text-gray-700 text-[20px] mt-4" style={{ fontFamily: "Minecraft" }}>
         Tidak ada Resep untuk Elemen ini.
@@ -114,27 +115,46 @@ export default function ResultBox({ result }: ResultBoxProps) {
           </p>
         ))}
 
-        <div className="mt-4 max-h-[400px] overflow-y-auto pr-2 bg-[#3E3E3E]">
-          <p className="text-white font-bold text-xl mb-2">🧬 Pohon Resep (Tree):</p>
-          <div className="flex justify-center">
-            {currentPath.length === 1 && !currentStepMap[finalItem] ? (
-              <div className="flex flex-col items-center">
-                <img
-                  src={elementImages[finalItem]}
-                  alt={finalItem}
-                  className="w-[80px] h-[80px] object-contain"
-                />
-                <p className="text-white mt-2">{finalItem}</p>
-              </div>
-            ) : (
-              <TreeVisualizer
-                finalItem={finalItem}
-                steps={currentStepMap}
-                elementImages={elementImages}
-              />
-            )}
-          </div>
+      <div className="mt-4 max-h-[400px] overflow-y-auto pr-2 bg-[#3E3E3E]">
+        <div className="flex justify-between items-center px-4 pt-2">
+          <p className="text-white font-bold text-xl">🧬 Pohon Resep (Tree):</p>
+
+          {/* Tombol Play */}
+          <button
+            onClick={() => setLiveUpdate(prev => !prev)}
+            title={liveUpdate ? "Live Update Aktif" : "Live Update Nonaktif"}
+            className="hover:scale-110 transition-transform mt-2 cursor-pointer"
+          >
+            <img
+              src="/images/live-dot.png"
+              alt="Toggle Live Update"
+              width={30}
+              height={30}
+            />
+          </button>
         </div>
+
+        <div className="flex justify-center mt-2">
+          {currentPath.length === 1 && !currentStepMap[finalItem] ? (
+            <div className="flex flex-col items-center">
+              <img
+                src={elementImages[finalItem]}
+                alt={finalItem}
+                className="w-[80px] h-[80px] object-contain"
+              />
+              <p className="text-white mt-2">{finalItem}</p>
+            </div>
+          ) : (
+            <TreeVisualizer
+              finalItem={finalItem}
+              steps={currentStepMap}
+              elementImages={elementImages}
+              liveUpdate={liveUpdate}
+            />
+          )}
+        </div>
+      </div>
+
       </div>
 
       {safePaths.length > 1 && (

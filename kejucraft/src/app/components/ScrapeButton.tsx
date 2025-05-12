@@ -32,7 +32,7 @@ export default function ScrapeButton() {
       )}
       <button
         onClick={handleScrape}
-        className="bg-[#6B6B6B] w-[60px] h-[60px] rounded flex items-center justify-center hover:brightness-110 transition"
+        className="bg-[#6B6B6B] cursor-pointer  w-[60px] h-[60px] rounded flex items-center justify-center hover:brightness-110 transition"
         disabled={loading}
         title="Lakukan scraping data"
       >
