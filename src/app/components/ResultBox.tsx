@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect, useMemo } from "react";
 import TreeVisualizer from "./TreeVisualizer";
 import Image from "next/image";

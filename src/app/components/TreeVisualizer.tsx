@@ -1,3 +1,4 @@
+'use client'
 import dynamic from "next/dynamic";
 import React, { useMemo, useState, useEffect } from "react";
 import { RawNodeDatum } from "react-d3-tree";

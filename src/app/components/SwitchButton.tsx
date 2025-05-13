@@ -1,3 +1,7 @@
+// src/app/components/SwitchButton.tsx
+
+'use client'; // ✅ Tambahkan baris ini di paling atas
+
 import { useState, createContext, useContext, ReactNode } from "react";
 import Image from "next/image";
 
@@ -17,11 +21,7 @@ export const useMode = () => useContext(ModeContext);
 
 export function SwitchButtonProvider({ children }: SwitchButtonProviderProps) {
   const [mode, setMode] = useState("craft");
-  
-  // In furnace mode, multithreading is enabled (max resep can be filled)
-  // In crafting table mode, multithreading is disabled (max resep can't be filled)
   const isMultithreading = mode === "furnace";
-
   const toggleMode = () => {
     setMode((prev) => (prev === "craft" ? "furnace" : "craft"));
   };
@@ -46,7 +46,7 @@ export default function SwitchButton() {
     <div
       onClick={toggleMode}
       className="bg-[#6B6B6B] w-[60px] h-[60px] rounded overflow-hidden relative cursor-pointer"
-      title={mode === "craft" ? "Swtich for Multithreading Mode" : "Multithreading Mode"}
+      title={mode === "craft" ? "Switch for Multithreading Mode" : "Multithreading Mode"}
     >
       <div
         className="flex transition-transform duration-300 ease-in-out w-[120px] h-[60px]"
