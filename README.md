@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧀 Kejucraft
 
-## Getting Started
+_Tubes 2 Strategi Algoritma - IF2211_
 
-First, run the development server:
+Kejucraft adalah sebuah website yang memungkinkan pengguna mencari jalur crafting dari elemen-elemen dasar menuju elemen target berdasarkan data dari _game_ **Little Alchemy 2**. Aplikasi ini memanfaatkan algoritma pencarian seperti **BFS**, **DFS**, **Bidirectional BFS**, dan **Bidirectional DFS**, serta menyediakan dua mode pencarian: **Single Recipe** (satu jalur crafting tercepat) dan **Multiple Recipes** (beragam jalur crafting unik).
 
+Seluruh data elemen dan kombinasi crafting diambil langsung melalui proses scraping dari halaman [Little Alchemy 2 Wiki](https://little-alchemy.fandom.com/wiki/Elements_(Little_Alchemy_2)).
+
+---
+
+## 🔍 Fitur Utama
+
+- 🔗 **Web scraping otomatis** elemen dan kombinasi resep dari wiki Little Alchemy 2.
+- 🧠 **Pilihan algoritma pencarian**:
+  - BFS (Breadth-First Search)
+  - DFS (Depth-First Search)
+  - Bidirectional BFS
+  - Bidirectional DFS
+- 🧪 **Dua mode pencarian:**
+  - Single Recipe: mencari jalur crafting paling efisien
+  - Multiple Recipes: menghasilkan variasi jalur crafting unik
+
+---
+
+## Dependensi
+### Node Package Manager 
 ```bash
+cd fe
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+### Golang
+Kunjungi situs resmi Go dan sesuaikan dengan versi OS:
+
+[https://go.dev/dl](https://go.dev/dl)
+
+---
+
+## Cara Menjalankan Aplikasi
+
+### Melalui Website 
+https://kejucraft.vercel.app
+
+### Melalui Docker
+#### 1. Clone dua repository berikut dan tempatkan dalam satu folder
+```
+git clone https://github.com/sbimasena/Tubes2_FE_bagikopiciumbuleuit.git ke dalam folder fe
+git clone https://github.com/sbimasena/Tubes2_BE_bagikopiciumbuleuit.git ke dalam folder be
+```
+#### 2. Buat terlebih dahulu network docker
+```bash
+docker network create kejucraft-net
+```
+#### 3. Jalankan backend
+```
+cd be
+docker compose up
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### 4. Jalankan frontend (di terminal baru)
+```
+cd ../fe
+docker compose up
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Melalui Local Terminal
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### 1. Clone dua repository berikut dan tempatkan dalam satu folder
+```
+git clone https://github.com/sbimasena/Tubes2_FE_bagikopiciumbuleuit.git ke dalam folder fe
+git clone https://github.com/sbimasena/Tubes2_BE_bagikopiciumbuleuit.git ke dalam folder be
+```
+#### 2. Jalankan Frontend (React + Next.js)
+```
+cd fe/kejucraft
+npm install
+npm run dev
+```
 
-## Learn More
+#### 3. Jalankan Backend (Golang)
+```
+cd ../be
+go run *.go
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Kontributor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| NIM      | Nama                  |
+| -------- | --------------------- |
+| 13523049 | Muhammad Fithra Rizki |
+| 13523053 | Sakti Bimasena        |
+| 13523062 | Aliya Husna Fayyaza   |
