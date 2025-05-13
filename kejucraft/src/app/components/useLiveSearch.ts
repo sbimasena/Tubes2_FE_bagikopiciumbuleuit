@@ -29,24 +29,27 @@ export function useLiveSearch(
     onStep,
     onDone,
     onError,
+    liveUpdate,
   }: {
     target: string;
-    algorithm: "dfs" | "bfs" | "dfs-multi" | "bfs-multi";
+    algorithm: string;
     maxPaths?: number;
     onStep: (step: { ingredients: [string, string]; result: string }) => void;
     onDone: (duration: string, visited: number) => void;
     onError?: (err: string) => void;
+    liveUpdate: boolean;
   }
 ) {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!target) return;
+    if (!target || !liveUpdate) return;
 
     const ws = new WebSocket("ws://localhost:8080/ws/search");
     socketRef.current = ws;
 
     ws.onopen = () => {
+        console.log("WebSocket OPEN");
       ws.send(
         JSON.stringify({
           target,
@@ -59,6 +62,13 @@ export function useLiveSearch(
 
     ws.onmessage = (event) => {
       const msg: StepMessage = JSON.parse(event.data);
+      console.log("📩 WebSocket MSG", msg);
+
+      if (msg.type === "step") {
+        console.log("✅ STEP DITERIMA", msg.step);
+        onStep(msg.step);
+      }
+      
       if (msg.type === "step") {
         onStep(msg.step);
       } else if (msg.type === "done") {

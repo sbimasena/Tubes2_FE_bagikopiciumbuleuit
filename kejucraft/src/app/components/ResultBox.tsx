@@ -33,7 +33,22 @@ export default function ResultBox({ result }: ResultBoxProps) {
   const [liveVisited, setLiveVisited] = useState<number>(0);
   const [liveError, setLiveError] = useState<string | null>(null);
 
+  const safePaths = (result?.paths ?? []).filter((p): p is string[] => Array.isArray(p));
+  const safeSteps = (result?.steps ?? []).filter((s): s is Record<string, [string, string]> => !!s);
+
+  const currentPath = safePaths[currentPage] ?? [];
+  const currentStepMap = safeSteps[currentPage] ?? {};
+
+  const finalItem = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+
   useEffect(() => {
+    if (liveUpdate) {
+      setLiveSteps({});
+      setLiveVisited(0);
+      setLiveDuration("");
+      setLiveError(null);
+    }
+
     if (result && currentPage >= result.paths.length) {
       setCurrentPage(0);
     }
@@ -53,31 +68,28 @@ export default function ResultBox({ result }: ResultBoxProps) {
     };
   
     fetchImages();
-  }, [result, currentPage]);
-
-  const safePaths = (result?.paths ?? []).filter((p): p is string[] => Array.isArray(p));
-  const safeSteps = (result?.steps ?? []).filter((s): s is Record<string, [string, string]> => !!s);
-
-  const currentPath = safePaths[currentPage] ?? [];
-  const currentStepMap = safeSteps[currentPage] ?? {};
-
-  const finalItem = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+  }, [result, currentPage, liveUpdate, finalItem]);
 
   useLiveSearch({
     target: finalItem,
-    algorithm: result?.algorithm === "bfs" ? "bfs" : "dfs", 
+    algorithm: result?.algorithm ?? "dfs",
     maxPaths: 1,
+    liveUpdate,
     onStep: (step) => {
+      console.log("STEP DITERIMA", step);
+      if (!liveUpdate) return;
       setLiveSteps((prev) => ({
         ...prev,
         [step.result]: step.ingredients,
       }));
     },
     onDone: (duration, visited) => {
+      if (!liveUpdate) return;
       setLiveDuration(duration);
       setLiveVisited(visited);
     },
     onError: (err) => {
+      if (!liveUpdate) return;
       setLiveError(err);
     },
   });
