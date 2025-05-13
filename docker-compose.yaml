@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build: .
+    container_name: nextjs-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://go-backend:8080
+    networks:
+      - kejucraft-net
+
+networks:
+  kejucraft-net: #dummy network
+    external: true
