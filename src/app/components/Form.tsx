@@ -2,10 +2,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import SwitchButton, { useMode } from "./SwitchButton";  // Remove unused imports
+import SwitchButton, { useMode } from "./SwitchButton"; 
 import ResultBox from "./ResultBox";
 import BidiSwitchButton from "./BidiSwitchButton";
 import ScrapeButton from "./ScrapeButton";
+import { getApiUrl } from './apiConfig';
 
 // Separate component for Max Resep input that uses the mode context
 function MaxResepInput({ maxResep, setMaxResep }: { maxResep: string, setMaxResep: (val: string) => void }) {
@@ -77,7 +78,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
         query.set("bidi", bidiMode);
       }
   
-      const response = await fetch(`http://localhost:8080/api/search?${query.toString()}`);
+      const response = await fetch(`${getApiUrl('api/search')}?${query.toString()}`);
       const responseText = await response.text(); 
   
       if (!response.ok) {

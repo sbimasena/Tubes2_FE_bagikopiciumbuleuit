@@ -2,6 +2,7 @@
 import dynamic from "next/dynamic";
 import React, { useMemo, useState, useEffect } from "react";
 import { RawNodeDatum } from "react-d3-tree";
+import { getImageProxyUrl } from './apiConfig';
 
 const TreeWrapper = dynamic(() => import("./TreeWrapper"), { ssr: false });
 
@@ -108,7 +109,7 @@ export default function TreeVisualizer({ steps, finalItem, elementImages, liveUp
           <g>
             {nodeDatum.imageUrl ? (
               <image
-                href={`http://localhost:8080/api/image?url=${encodeURIComponent(nodeDatum.imageUrl)}`}
+                href={getImageProxyUrl(nodeDatum.imageUrl)}
                 x={-20}
                 y={-20}
                 width={40}

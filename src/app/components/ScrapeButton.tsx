@@ -1,6 +1,7 @@
 'use client'
 import Image from "next/image";
 import { useState } from "react";
+import { getApiUrl } from './apiConfig';
 
 export default function ScrapeButton() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export default function ScrapeButton() {
     setLoading(true);
     setStatus(null);
     try {
-      const res = await fetch("http://localhost:8080/api/scrape", {
+      const res = await fetch(getApiUrl('api/scrape'), {
         method: "POST",
       });
       if (!res.ok) throw new Error(await res.text());

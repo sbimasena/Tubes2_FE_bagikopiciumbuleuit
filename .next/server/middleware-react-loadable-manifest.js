@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"app/components/TreeVisualizer.tsx -> ./TreeWrapper":{"id":3301,"files":["static/chunks/173.ad2e59c9016a42c2.js","static/chunks/301.eb0046bff38de846.js"]}}';

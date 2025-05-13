@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import TreeVisualizer from "./TreeVisualizer";
 import Image from "next/image";
+import { getApiUrl } from './apiConfig';
 
 interface Step {
   ingredients: [string, string];
@@ -32,7 +33,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
 
     const fetchImages = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/elements");
+        const res = await fetch(getApiUrl('api/elements'));
         const data = await res.json();
         const map: Record<string, string> = {};
         for (const item of data) {
