@@ -1,14 +1,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import SwitchButton, { useMode, ModeContext, SwitchButtonProvider } from "./SwitchButton";
+import SwitchButton, { useMode } from "./SwitchButton";  // Remove unused imports
 import ResultBox from "./ResultBox";
 import BidiSwitchButton from "./BidiSwitchButton";
 import ScrapeButton from "./ScrapeButton";
 
-
 // Separate component for Max Resep input that uses the mode context
-
 function MaxResepInput({ maxResep, setMaxResep }: { maxResep: string, setMaxResep: (val: string) => void }) {
   const { isMultithreading } = useMode();
 
@@ -39,12 +37,6 @@ interface FormProps {
   initialSearchType?: 'bfs' | 'dfs' | 'bi';
 }
 
-interface Step {
-  ingredients: [string, string];
-  result: string;
-}
-
-
 interface DfsResponse {
   duration: string;
   nodes_visited: number;
@@ -61,9 +53,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   const { isMultithreading } = useMode();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
   const [bidiMode, setBidiMode] = useState<"bfs" | "dfs">("dfs");
-
 
   const handleSearchChange = (searchType: 'bfs' | 'dfs' | 'bi') => {
     setActiveSearch(searchType);
@@ -96,9 +86,8 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
         throw new Error(responseText);
       }
   
-      const data: DfsResponse = JSON.parse(responseText);
+      const data: DfsResponse = JSON.parse(responseText);  // Fix type casting here
       setResult(data);
-      setCurrentPage(0);
     } catch (err: any) {
       setError(err.message);
       setResult(null);
@@ -108,7 +97,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   };
   
   return (
-      <div className="w-[1400px] h-[850px] bg-[#EDEDED] rounded-2xl p-6 shadow-md mx-auto space-y-4">
+    <div className="w-[1400px] h-[850px] bg-[#EDEDED] rounded-2xl p-6 shadow-md mx-auto space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center" style={{ fontFamily: 'Minecraft' }}>
         <div className="flex space-x-10">
@@ -141,7 +130,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
         <ScrapeButton />
         <SwitchButton />
         <BidiSwitchButton activeSearch={activeSearch} bidiMode={bidiMode} setBidiMode={setBidiMode} />
-
+        
         {/* Elemen Input */}
         <div className="flex items-center space-x-2">
           <label className="text-black text-[28px]">Elemen :</label>
@@ -153,7 +142,7 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
           />
         </div>
 
-        {/* Max Resep Input - using useMode hook */}
+        {/* Max Resep Input */}
         <MaxResepInput maxResep={maxResep} setMaxResep={setMaxResep} />
 
         <button className="rounded hover:brightness-110 cursor-pointer p-1"  onClick={handleSearch}>

@@ -6,11 +6,6 @@ interface Step {
   result: string;
 }
 
-interface Path {
-  steps: Step[];
-  final_item: string;
-}
-
 interface DfsResponse {
   duration: string;
   nodes_visited: number;

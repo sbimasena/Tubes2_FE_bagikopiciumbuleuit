@@ -14,8 +14,14 @@ export default function ScrapeButton() {
       });
       if (!res.ok) throw new Error(await res.text());
       setStatus("✅ Scraping berhasil!");
-    } catch (err: any) {
-      setStatus("❌ Gagal scraping: " + err.message);
+    } catch (err: unknown) {
+      // Ensure `err` is of type `Error` before accessing its `message` property
+      if (err instanceof Error) {
+        setStatus("❌ Gagal scraping: " + err.message);
+      } else {
+        // If `err` is not an `Error`, handle the situation accordingly
+        setStatus("❌ Gagal scraping: Unknown error");
+      }
     } finally {
       setLoading(false);
       setTimeout(() => setStatus(null), 4000);
@@ -32,7 +38,7 @@ export default function ScrapeButton() {
       )}
       <button
         onClick={handleScrape}
-        className="bg-[#6B6B6B] cursor-pointer  w-[60px] h-[60px] rounded flex items-center justify-center hover:brightness-110 transition"
+        className="bg-[#6B6B6B] cursor-pointer w-[60px] h-[60px] rounded flex items-center justify-center hover:brightness-110 transition"
         disabled={loading}
         title="Lakukan scraping data"
       >
