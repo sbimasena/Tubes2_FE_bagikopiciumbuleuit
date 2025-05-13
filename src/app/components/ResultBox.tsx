@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import TreeVisualizer from "./TreeVisualizer";
+import Image from "next/image";
 
 interface Step {
   ingredients: [string, string];
@@ -120,7 +121,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
             title={liveUpdate ? "Live Update Aktif" : "Live Update Nonaktif"}
             className="hover:scale-110 transition-transform mt-2 cursor-pointer"
           >
-            <img
+            <Image
               src="/images/live-dot.png"
               alt="Toggle Live Update"
               width={30}
@@ -132,7 +133,7 @@ export default function ResultBox({ result }: ResultBoxProps) {
         <div className="flex justify-center mt-2">
           {currentPath.length === 1 && !currentStepMap[finalItem] ? (
             <div className="flex flex-col items-center">
-              <img
+              <Image
                 src={elementImages[finalItem]}
                 alt={finalItem}
                 className="w-[80px] h-[80px] object-contain"
