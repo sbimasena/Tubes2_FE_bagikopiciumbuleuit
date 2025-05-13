@@ -88,8 +88,12 @@ export default function Form({ initialSearchType = 'bfs' }: FormProps) {
   
       const data: DfsResponse = JSON.parse(responseText);  // Fix type casting here
       setResult(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
       setResult(null);
     } finally {
       setLoading(false);
