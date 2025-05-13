@@ -55,44 +55,24 @@ interface TreeNodeProps {
   liveUpdate?: boolean;
 }
 
-export default function TreeVisualizer({ steps, finalItem, elementImages, liveUpdate }: TreeNodeProps) {
-  const [partialSteps, setPartialSteps] = useState<Record<string, [string, string]>>({});
+export default function TreeVisualizer({
+  steps,
+  finalItem,
+  elementImages,
+}: TreeNodeProps) {
   const basicElements = new Set(["Fire", "Water", "Earth", "Air"]);
 
-  useEffect(() => {
-    if (!liveUpdate) {
-      setPartialSteps(steps);
-      return;
-    }
-  
-    setPartialSteps({});
-    const keys = Object.keys(steps);
-    let i = 0;
-  
-    const interval = setInterval(() => {
-      if (i >= keys.length) {
-        clearInterval(interval);
-        return;
-      }
-      const key = keys[i];
-      setPartialSteps(prev => ({ ...prev, [key]: steps[key] }));
-      i++;
-    }, 300);
-  
-    return () => clearInterval(interval);
-  }, [steps, liveUpdate]);
-
   const treeData = useMemo(() => {
-    if (!partialSteps[finalItem] && basicElements.has(finalItem)) {
+    if (!steps[finalItem] && basicElements.has(finalItem)) {
       return [{
         name: finalItem,
         imageUrl: elementImages[finalItem] || undefined,
-        children: [], 
+        children: [],
       }];
     }
 
-    return [buildTreeData(finalItem, partialSteps, elementImages, new Set())];
-  }, [partialSteps, finalItem, elementImages]);
+    return [buildTreeData(finalItem, steps, elementImages, new Set())];
+  }, [steps, finalItem, elementImages]);
 
   return (
     <div style={{ width: "100%", height: "600px" }}>
@@ -126,3 +106,4 @@ export default function TreeVisualizer({ steps, finalItem, elementImages, liveUp
     </div>
   );
 }
+

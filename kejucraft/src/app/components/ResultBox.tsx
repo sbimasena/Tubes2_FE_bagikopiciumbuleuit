@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import TreeVisualizer from "./TreeVisualizer";
+import { useLiveSearch } from "./useLiveSearch";
 
 interface Step {
   ingredients: [string, string];
@@ -27,6 +28,10 @@ export default function ResultBox({ result }: ResultBoxProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [elementImages, setElementImages] = useState<Record<string, string>>({});
   const [liveUpdate, setLiveUpdate] = useState(false);
+  const [liveSteps, setLiveSteps] = useState<Record<string, [string, string]>>({});
+  const [liveDuration, setLiveDuration] = useState<string>("");
+  const [liveVisited, setLiveVisited] = useState<number>(0);
+  const [liveError, setLiveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (result && currentPage >= result.paths.length) {
@@ -57,6 +62,25 @@ export default function ResultBox({ result }: ResultBoxProps) {
   const currentStepMap = safeSteps[currentPage] ?? {};
 
   const finalItem = currentPath.length > 0 ? currentPath[currentPath.length - 1] : "";
+
+  useLiveSearch({
+    target: finalItem,
+    algorithm: result?.algorithm === "bfs" ? "bfs" : "dfs", 
+    maxPaths: 1,
+    onStep: (step) => {
+      setLiveSteps((prev) => ({
+        ...prev,
+        [step.result]: step.ingredients,
+      }));
+    },
+    onDone: (duration, visited) => {
+      setLiveDuration(duration);
+      setLiveVisited(visited);
+    },
+    onError: (err) => {
+      setLiveError(err);
+    },
+  });
 
   const visualSteps = useMemo(() => {
     if (!currentPath.length || !finalItem) return [];
@@ -102,9 +126,9 @@ export default function ResultBox({ result }: ResultBoxProps) {
   return (
     <div className="text-gray-700 text-[20px] mt-4 space-y-4" style={{ fontFamily: 'Minecraft' }}>
       <div>
-        <p>⏱ Waktu: {result.duration}</p>
-        <p>📦 Node Dikunjungi: {result.nodes_visited}</p>
-        <p>🧪 Jumlah Resep: {result.paths.length}</p>
+      <p>⏱ Waktu: {liveUpdate ? liveDuration : result.duration}</p>
+      <p>📦 Node Dikunjungi: {liveUpdate ? liveVisited : result.nodes_visited}</p>
+      <p>🧪 Jumlah Resep: {result.paths.length}</p>
       </div>
 
       <div className="bg-[#5A5A5A] text-white rounded p-4 max-h-[500px] overflow-y-auto">
@@ -119,7 +143,6 @@ export default function ResultBox({ result }: ResultBoxProps) {
         <div className="flex justify-between items-center px-4 pt-2">
           <p className="text-white font-bold text-xl">🧬 Pohon Resep (Tree):</p>
 
-          {/* Tombol Play */}
           <button
             onClick={() => setLiveUpdate(prev => !prev)}
             title={liveUpdate ? "Live Update Aktif" : "Live Update Nonaktif"}
@@ -147,12 +170,15 @@ export default function ResultBox({ result }: ResultBoxProps) {
           ) : (
             <TreeVisualizer
               finalItem={finalItem}
-              steps={currentStepMap}
+              steps={liveUpdate ? liveSteps : currentStepMap}
               elementImages={elementImages}
               liveUpdate={liveUpdate}
             />
           )}
         </div>
+        {liveError && (
+          <p className="text-red-500 text-center mt-2 animate-pulse">⚠️ {liveError}</p>
+        )}
       </div>
 
       </div>
