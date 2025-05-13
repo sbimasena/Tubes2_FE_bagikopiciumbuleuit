@@ -1,4 +1,5 @@
 // src/app/site/formpage/page.tsx
+import { Suspense } from "react";
 import { SwitchButtonProvider } from "@/src/app/components/SwitchButton";
 import ClientFormWrapper from "@/src/app/components/ClientFormWrapper";
 
@@ -11,7 +12,9 @@ export default function FormPage() {
       >
         <div className="flex items-center justify-center pt-16">
           <SwitchButtonProvider>
-            <ClientFormWrapper />
+            <Suspense fallback={<div>Loading form...</div>}>
+              <ClientFormWrapper />
+            </Suspense>
           </SwitchButtonProvider>
         </div>
       </div>
